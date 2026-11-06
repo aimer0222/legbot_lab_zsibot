@@ -93,13 +93,12 @@ python scripts/rsl_rl/train.py \
 
 ## Play 可视化
 
-在支持图形显示的会话中执行：
+在项目根目录、支持图形显示的会话中执行。播放时 `--checkpoint` 指定模型文件路径：
 
 ```bash
 python scripts/rsl_rl/play.py \
   --task RobotLab-ZSL1W-Piper-Fixed-v0 \
-  --load_run 2026-11-05_11-41-01_zsl1w_v1 \
-  --checkpoint model_20000.pt \
+  --checkpoint logs/rsl_rl/zsl1w_piper_fixed_moe_cts/2026-11-05_11-41-01_zsl1w_v1/model_20000.pt \
   --device cuda:0 \
   --num_envs 16 \
   --terrain_level 6 \
