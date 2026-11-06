@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "model": "zsl1w_inspection_piper.urdf",
+  "root_link": "BASE_LINK",
+  "links": 35,
+  "joints": 34,
+  "movable_joints_including_mimic": 25,
+  "mimic_joints": 2,
+  "independent_movable_joints": 23,
+  "referenced_mesh_files": 42,
+  "positive_definite_inertias": 31,
+  "total_declared_mass_kg": 26.329130015,
+  "mount_parent": "BASE_LINK",
+  "mount_xyz_m": [
+    0.0,
+    0.0,
+    0.075
+  ],
+  "mount_rpy_rad": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "body_deck_z_m": 0.07003,
+  "nominal_body_clearance_m": 0.00497,
+  "housing_visual_clearance": "Original outer housing mesh retained; sampled zero-pose cross sections show millimeter-scale interference at the opening rim around Z=0.163-0.1654 m. This proxy opening does not modify the visual CAD geometry.",
+  "source_robot_definitions_preserved_except_housing_collision_clearance": true,
+  "housing_clearance_collision_pieces": 8,
+  "source_arm_definitions_preserved_except_names_paths_and_world_attachment": true,
+  "isaac_sim_dynamic_validation": "not performed",
+  "scope": "XML tree, original definitions, resources, limits, mimic references, inertias and mount pose; no workspace sweep or runtime sensor validation"
+}

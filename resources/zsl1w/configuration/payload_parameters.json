@@ -1,0 +1,102 @@
+{
+  "PAYLOAD_HOUSING": {
+    "mass_kg": 0.7330187552579802,
+    "com_local_m": [
+      0.02225668288647095,
+      -0.0013292368497879363,
+      0.12298032363997428
+    ],
+    "origin_base_m": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "triangles": 116862,
+    "source_components": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      33,
+      34,
+      35,
+      36
+    ]
+  },
+  "MID360_LINK": {
+    "mass_kg": 0.265,
+    "com_local_m": [
+      0,
+      0,
+      0.03
+    ],
+    "origin_base_m": [
+      0.18599998256835942,
+      -1.2158203162471182e-08,
+      0.09994000479492189
+    ],
+    "triangles": 252988,
+    "source_components": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ]
+  },
+  "D435_LINK": {
+    "mass_kg": 0.072,
+    "com_local_m": [
+      0,
+      0,
+      0
+    ],
+    "origin_base_m": [
+      0.2544983346191407,
+      -1.2158203162471182e-08,
+      0.08997004935058596
+    ],
+    "triangles": 972,
+    "source_components": [
+      22
+    ]
+  },
+  "material_assumptions_kg_m3": {
+    "housing": 1200,
+    "guard": 2700,
+    "guard_fasteners": 7850
+  },
+  "cad_to_base": {
+    "cad_unit": "mm",
+    "base_unit": "m",
+    "axis_order": [
+      "Zcad",
+      "Xcad",
+      "Ycad"
+    ],
+    "offset_before_scale_mm": [
+      753.40465,
+      940.63255,
+      391.32266
+    ],
+    "scale": 0.001
+  }
+}

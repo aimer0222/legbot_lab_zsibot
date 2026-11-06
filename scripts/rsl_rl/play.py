@@ -37,6 +37,8 @@ parser.add_argument(
 )
 parser.add_argument('--num_envs', type=int, default=None, help='Number of environments to simulate.')
 parser.add_argument('--max_steps', type=int, default=0, help='Stop playback after this many steps; 0 runs until closed.')
+parser.add_argument('--terrain_level', type=int, default=None,
+                    help='Fix playback at this zero-based terrain row; ZSL1W defaults to level 6.')
 parser.add_argument('--task', type=str, default=None, help='Name of the task.')
 parser.add_argument(
     '--agent', type=str, default='rsl_rl_cfg_entry_point', help='Name of the RL agent configuration entry point.'
@@ -72,7 +74,6 @@ simulation_app = app_launcher.app
 import gymnasium as gym
 import time
 import torch
-from tensordict import TensorDict
 from rsl_rl.runners import DistillationRunner, OnPolicyRunner
 from rsl_rl.modules import ActorCriticMoECTS
 
@@ -91,6 +92,54 @@ from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper, expor
 from isaaclab_tasks.utils import get_checkpoint_path
 from isaaclab_tasks.utils.hydra import hydra_task_config
 import robot_lab.tasks  # noqa: F401
+
+
+def configure_zsl1w_play_commands(env_cfg):
+    """Prefer fast straight motion during ZSL1W playback, independently of training progress."""
+    command = env_cfg.commands.base_velocity
+    ranges = {
+        "lin_vel_x": (-1.5, 1.5),
+        "lin_vel_y": (-0.6, 0.6),
+        "ang_vel_yaw": (-1.5, 1.5),
+    }
+    for name, bounds in ranges.items():
+        setattr(command.ranges, name, bounds)
+    for terrain_ranges in command.terrain_max_command_ranges.values():
+        terrain_ranges.update(ranges)
+    # Checkpoint progress and per-terrain limits must not reduce playback speeds.
+    command.command_range_curriculum = []
+    command.zero_command_curriculum = None
+    command.dynamic_resample_commands = False
+    # The existing limit sampler selects the two X endpoints with equal chance.
+    command.limit_vel = {"lin_vel_x": [-1, 1], "lin_vel_y": [0], "ang_vel_yaw": [0]}
+    command.limit_vel_prob = 0.8
+    command.limit_vel_invert_when_continuous = False
+    print("[INFO] ZSL1W play commands: 40% forward at 1.5 m/s, 40% backward at 1.5 m/s, "
+          "20% mixed; x=+/-1.5 m/s, y=+/-0.6 m/s, yaw=+/-1.5 rad/s.")
+
+
+def configure_play_terrain(env_cfg, level):
+    """Keep training's ordered terrain rows while disabling changes on reset."""
+    terrain = env_cfg.scene.terrain
+    generator = terrain.terrain_generator
+    if terrain.terrain_type != 'generator' or generator is None:
+        raise ValueError('--terrain_level requires a generated terrain.')
+    if not 0 <= level < generator.num_rows:
+        raise ValueError(f'--terrain_level must be between 0 and {generator.num_rows - 1}, got {level}.')
+    env_cfg.curriculum.terrain_levels = None
+    # Disabling the generator curriculum would randomize difficulty across rows.
+    generator.curriculum = True
+    terrain.max_init_terrain_level = level
+
+
+def set_play_terrain_origins(env, level):
+    """Place every robot on the selected row, retaining its terrain-type column."""
+    terrain = env.unwrapped.scene.terrain
+    terrain.terrain_levels.fill_(level)
+    terrain.env_origins[:] = terrain.terrain_origins[terrain.terrain_levels, terrain.terrain_types]
+    print(f'[INFO] Playback terrain fixed at level {level}/{terrain.max_terrain_level - 1} '
+          'for all environments; terrain promotion/demotion disabled.')
+
 
 def fix_commands(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg):
     """将速度指令固定为恒定目标值。
@@ -179,9 +228,20 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # 若指定则固定速度指令
     if args_cli.fix_commands:
         fix_commands(env_cfg)
+    elif task_name == 'RobotLab-ZSL1W-Piper-Fixed-v0':
+        configure_zsl1w_play_commands(env_cfg)
+
+    terrain_level = args_cli.terrain_level
+    if terrain_level is None and task_name == 'RobotLab-ZSL1W-Piper-Fixed-v0':
+        terrain_level = 6
+    if terrain_level is not None:
+        configure_play_terrain(env_cfg, terrain_level)
 
     # 创建 Isaac 环境
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode='rgb_array' if args_cli.video else None)
+    if terrain_level is not None:
+        # The vector wrapper below resets robots onto these origins.
+        set_play_terrain_origins(env, terrain_level)
 
     # 若 RL 算法需要则转换为单智能体实例
     if isinstance(env.unwrapped, DirectMARLEnv):
@@ -258,35 +318,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         export_policy_as_jit(policy_nn, normalizer=normalizer, path=export_model_dir, filename='policy.pt')
         export_policy_as_onnx(policy_nn, normalizer=normalizer, path=export_model_dir, filename='policy.onnx')
 
-    def _get_obs_dict(obs_result):
-        """从环境获取完整观测字典。
-
-        兼容旧版 IsaacLab API（get_observations() 返回 TensorDict）
-        与新版 API（返回元组 (policy_obs, extras)）。
-        若观测为普通字典则转换为 TensorDict。
-
-        Args:
-            obs_result: 环境返回的观测结果。
-
-        Returns:
-            环境观测的 TensorDict。
-        """
-        if isinstance(obs_result, tuple):
-            # 新版 IsaacLab API: (policy_obs, {'observations': full_obs_dict})
-            obs = obs_result[1]['observations']
-        else:
-            obs = obs_result
-        if not isinstance(obs, TensorDict):
-            # 从第一个观测张量推断 batch size
-            batch_size = [next(iter(obs.values())).shape[0]]
-            obs = TensorDict(obs, batch_size=batch_size, device=env.unwrapped.device)
-        return obs
-
     dt = env.unwrapped.step_dt
 
     # env.unwrapped.eye = (1.1, 3.3, 0.9)
     # 重置环境
-    obs = _get_obs_dict(env.get_observations())
+    obs = env.get_observations()
     timestep = 0
     # 运行环境仿真
     while simulation_app.is_running():
@@ -296,8 +332,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             # 智能体动作
             actions = policy(obs)
             # 环境步进
-            _, _, dones, extras = env.step(actions)
-            obs = _get_obs_dict(extras['observations'])
+            # RSL-RL 3 returns the complete TensorDict as the first result.
+            obs, _, dones, _ = env.step(actions)
             # 重置已终止 episode 的循环状态
             policy_nn.reset(dones)
         if args_cli.video:

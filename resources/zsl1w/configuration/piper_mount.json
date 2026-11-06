@@ -1,0 +1,45 @@
+{
+  "reference_urdf_relative_to_zsl1w": "urdf/zsl1w_inspection_piper.urdf",
+  "arm_source_relative_to_robots": "piper/urdf/piper_with_gripper_description.urdf",
+  "parent_link": "BASE_LINK",
+  "mount_joint": "PIPER_MOUNT_JOINT",
+  "arm_name_prefix": "piper_",
+  "xyz_m": [
+    0.0,
+    0.0,
+    0.075
+  ],
+  "rpy_rad": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "pose_basis": "Center the Piper base on the reserved opening with its bottom 5 mm above the approximately 0.07003 m bare robot center deck, underneath the outer housing. Piper +X is robot-forward; the connector faces rearward. Nominal mount, without modeled adapter or fasteners.",
+  "arm_mass_kg": 4.7,
+  "assembled_mass_kg": 26.329130015,
+  "preview_joint_positions_rad": {
+    "piper_joint1": 0.0,
+    "piper_joint2": 0.0,
+    "piper_joint3": 0.0,
+    "piper_joint4": 0.0,
+    "piper_joint5": 0.0,
+    "piper_joint6": 0.0
+  },
+  "preview_gripper_opening_m": 0.0,
+  "body_deck_z_m": 0.07003,
+  "nominal_body_clearance_m": 0.00497,
+  "housing_collision_clearance": {
+    "source_link": "PAYLOAD_HOUSING",
+    "min_m": [
+      -0.065,
+      -0.045,
+      0.06
+    ],
+    "max_m": [
+      0.045,
+      0.045,
+      0.175
+    ]
+  },
+  "housing_visual_clearance": "Original outer housing mesh retained; sampled zero-pose cross sections show millimeter-scale interference at the opening rim around Z=0.163-0.1654 m. This proxy opening does not modify the visual CAD geometry."
+}

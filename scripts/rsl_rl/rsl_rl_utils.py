@@ -266,7 +266,7 @@ class _OnnxPolicyExporter(torch.nn.Module):
         """
         if history.dim() == 1:
             history = history.unsqueeze(0)
-        if history.shape[-1] != self.num_actor_obs:
+        if not torch.jit.is_tracing() and history.shape[-1] != self.num_actor_obs:
             raise ValueError(
                 f'Expected history last dimension {self.num_actor_obs}, got {history.shape[-1]}.'
             )
