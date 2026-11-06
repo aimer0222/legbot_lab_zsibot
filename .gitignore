@@ -78,6 +78,18 @@ deploy/pre_train/
 w1w_deploy/venv/
 w1w_deploy/elrs_service/elrs_service
 
-# Published ZSL1W training checkpoints
-!/checkpoints/zsl1w_piper_fixed/model_10000.pt
-!/checkpoints/zsl1w_piper_fixed/model_20000.pt
+# Published ZSL1W run: checkpoints and training configuration only
+!/logs/
+/logs/*
+!/logs/rsl_rl/
+/logs/rsl_rl/*
+!/logs/rsl_rl/zsl1w_piper_fixed_moe_cts/
+/logs/rsl_rl/zsl1w_piper_fixed_moe_cts/*
+!/logs/rsl_rl/zsl1w_piper_fixed_moe_cts/2026-11-05_11-41-01_zsl1w_v1/
+/logs/rsl_rl/zsl1w_piper_fixed_moe_cts/2026-11-05_11-41-01_zsl1w_v1/*
+!/logs/rsl_rl/zsl1w_piper_fixed_moe_cts/2026-11-05_11-41-01_zsl1w_v1/params/
+/logs/rsl_rl/zsl1w_piper_fixed_moe_cts/2026-11-05_11-41-01_zsl1w_v1/params/*
+!/logs/rsl_rl/zsl1w_piper_fixed_moe_cts/2026-11-05_11-41-01_zsl1w_v1/model_10000.pt
+!/logs/rsl_rl/zsl1w_piper_fixed_moe_cts/2026-11-05_11-41-01_zsl1w_v1/model_20000.pt
+!/logs/rsl_rl/zsl1w_piper_fixed_moe_cts/2026-11-05_11-41-01_zsl1w_v1/params/agent.yaml
+!/logs/rsl_rl/zsl1w_piper_fixed_moe_cts/2026-11-05_11-41-01_zsl1w_v1/params/env.yaml
