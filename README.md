@@ -25,23 +25,43 @@ logs/rsl_rl/zsl1w_piper_fixed_moe_cts/2026-11-05_11-41-01_zsl1w_v1/
 
 下面使用 `model_20000.pt`，也可替换为 `model_10000.pt`。
 
-## 执行环境
+## 配置环境
 
-使用 Isaac Sim 5.1 / Isaac Lab 2.3，以及本项目的 `robot_lab` 和 MoE-CTS `rsl_rl`。
-
-当前机器进入现有容器后执行下面的命令：
+1. 创建 Python 3.11 环境并安装 Isaac Lab：
 
 ```bash
-docker exec -it legbot-dev bash
-cd /workspace/legbot_lab
+conda create -n wf_cts_moe python=3.11
+conda activate wf_cts_moe
+pip install --upgrade pip
+pip install "isaaclab[isaacsim,all]==2.3.2.post1" --extra-index-url https://pypi.nvidia.com
+pip install -U torch==2.7.0 torchvision==0.22.0 --index-url https://download.pytorch.org/whl/cu128
 ```
 
-宿主机目录为 `/data/sdl/legbot_lab_zsibot`，当前容器内路径为 `/workspace/legbot_lab`。示例使用 `cuda:0`，可替换为实际使用的 GPU。
+2. 克隆本项目，以可编辑模式安装定制版 RSL-RL 和 robot_lab：
+
+```bash
+git clone https://github.com/aimer0222/legbot_lab_zsibot.git
+cd legbot_lab_zsibot
+python -m pip install -e source/robot_lab
+python -m pip install -e source/rsl_rl
+```
+
+已有本地仓库时，直接进入项目根目录执行两条安装命令即可。
+
+3. 安装 MuJoCo（可选，用于 Sim2Sim）：
+
+```bash
+pip install mujoco pygame
+```
+
+后续训练和播放命令均在已激活的 `wf_cts_moe` 环境、项目根目录执行。示例使用 `cuda:0`，可替换为实际使用的 GPU。
+
+> 注：也可以参考[原项目的 README（中文）](README_UPSTREAM_CN.md#安装步骤)进行环境配置。
 
 ## 从头训练
 
 ```bash
-/workspace/isaaclab/isaaclab.sh -p scripts/rsl_rl/train.py \
+python scripts/rsl_rl/train.py \
   --task RobotLab-ZSL1W-Piper-Fixed-v0 \
   --headless \
   --device cuda:0 \
@@ -57,7 +77,7 @@ cd /workspace/legbot_lab
 直接从已上传的 `model_20000.pt` 续训，无需复制模型或建立恢复目录：
 
 ```bash
-/workspace/isaaclab/isaaclab.sh -p scripts/rsl_rl/train.py \
+python scripts/rsl_rl/train.py \
   --task RobotLab-ZSL1W-Piper-Fixed-v0 \
   --headless \
   --device cuda:0 \
@@ -76,7 +96,7 @@ cd /workspace/legbot_lab
 在支持图形显示的会话中执行：
 
 ```bash
-/workspace/isaaclab/isaaclab.sh -p scripts/rsl_rl/play.py \
+python scripts/rsl_rl/play.py \
   --task RobotLab-ZSL1W-Piper-Fixed-v0 \
   --load_run 2026-11-05_11-41-01_zsl1w_v1 \
   --checkpoint model_20000.pt \

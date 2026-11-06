@@ -2,7 +2,7 @@
 
 # WF-CTS-MOE
 
-[English](README.md) | [中文](README_cn.md)
+[ZSL1_W 项目说明](README.md) | 原项目 README（中文）
 
 面向 16 自由度轮足四足机器人的强化学习项目，基于 Isaac Lab 与 RSL-RL 构建。
 
