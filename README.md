@@ -105,6 +105,6 @@ python scripts/rsl_rl/play.py \
   --real-time
 ```
 
-不加 `--headless` 即打开仿真窗口。`--terrain_level` 可设为 0～9；增加 `--fix_commands` 可固定向前速度为 `1.0 m/s`。
+不加 `--headless` 即打开仿真窗口。播放目标速度范围为前后 `±0.8 m/s`、侧移 `±0.3 m/s`、转向 `±0.8 rad/s`。`--terrain_level` 可设为 0～9；增加 `--fix_commands` 可固定向前速度为 `0.8 m/s`。
 
 无图形界面时，在同一命令末尾增加 `--headless --video --video_length 500` 录制视频，结果保存在该运行目录的 `videos/play/` 下。

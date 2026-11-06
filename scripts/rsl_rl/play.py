@@ -95,18 +95,18 @@ import robot_lab.tasks  # noqa: F401
 
 
 def configure_zsl1w_play_commands(env_cfg):
-    """Prefer fast straight motion during ZSL1W playback, independently of training progress."""
+    """Use slower ZSL1W playback commands, independently of training progress."""
     command = env_cfg.commands.base_velocity
     ranges = {
-        "lin_vel_x": (-1.5, 1.5),
-        "lin_vel_y": (-0.6, 0.6),
-        "ang_vel_yaw": (-1.5, 1.5),
+        "lin_vel_x": (-0.8, 0.8),
+        "lin_vel_y": (-0.3, 0.3),
+        "ang_vel_yaw": (-0.8, 0.8),
     }
     for name, bounds in ranges.items():
         setattr(command.ranges, name, bounds)
     for terrain_ranges in command.terrain_max_command_ranges.values():
         terrain_ranges.update(ranges)
-    # Checkpoint progress and per-terrain limits must not reduce playback speeds.
+    # Keep playback ranges independent of checkpoint progress and training limits.
     command.command_range_curriculum = []
     command.zero_command_curriculum = None
     command.dynamic_resample_commands = False
@@ -114,8 +114,8 @@ def configure_zsl1w_play_commands(env_cfg):
     command.limit_vel = {"lin_vel_x": [-1, 1], "lin_vel_y": [0], "ang_vel_yaw": [0]}
     command.limit_vel_prob = 0.8
     command.limit_vel_invert_when_continuous = False
-    print("[INFO] ZSL1W play commands: 40% forward at 1.5 m/s, 40% backward at 1.5 m/s, "
-          "20% mixed; x=+/-1.5 m/s, y=+/-0.6 m/s, yaw=+/-1.5 rad/s.")
+    print("[INFO] ZSL1W play commands: 40% forward at 0.8 m/s, 40% backward at 0.8 m/s, "
+          "20% mixed; x=+/-0.8 m/s, y=+/-0.3 m/s, yaw=+/-0.8 rad/s.")
 
 
 def configure_play_terrain(env_cfg, level):
@@ -141,15 +141,16 @@ def set_play_terrain_origins(env, level):
           'for all environments; terrain promotion/demotion disabled.')
 
 
-def fix_commands(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg):
+def fix_commands(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, forward_speed: float = 1.0):
     """将速度指令固定为恒定目标值。
 
     优先锁定指令生成器，使策略观测与环境内部指令状态保持一致。
 
     Args:
         env_cfg: 环境配置。
+        forward_speed: 固定向前速度，单位 m/s。
     """
-    fixed_lin_x, fixed_lin_y, fixed_ang_z = 1.0, 0.0, 0.0
+    fixed_lin_x, fixed_lin_y, fixed_ang_z = forward_speed, 0.0, 0.0
 
     base_velocity_cfg = getattr(getattr(env_cfg, 'commands', None), 'base_velocity', None)
     if base_velocity_cfg is None:
@@ -227,7 +228,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # 若指定则固定速度指令
     if args_cli.fix_commands:
-        fix_commands(env_cfg)
+        fix_commands(env_cfg, forward_speed=0.8 if task_name == 'RobotLab-ZSL1W-Piper-Fixed-v0' else 1.0)
     elif task_name == 'RobotLab-ZSL1W-Piper-Fixed-v0':
         configure_zsl1w_play_commands(env_cfg)
 
