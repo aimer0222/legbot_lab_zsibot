@@ -1,0 +1,30 @@
+{
+  "task": "RobotLab-ZSL1W-Piper-Fixed-v0",
+  "source_run": "2026-11-05_11-41-01_zsl1w_v1",
+  "files": [
+    {
+      "path": "model_10000.pt",
+      "size_bytes": 23965327,
+      "sha256": "fe3c3eafdbed5628942d155bb590c5a47cdd3fba5d38df3e9a86488df2c49281",
+      "iter": 10000,
+      "next_iter": 10001
+    },
+    {
+      "path": "model_20000.pt",
+      "size_bytes": 23965327,
+      "sha256": "abd72bbe910054aced72a0d7b688134f32cb39c9e61f55538703319b6922b4f3",
+      "iter": 20000,
+      "next_iter": 20001
+    },
+    {
+      "path": "params/agent.yaml",
+      "size_bytes": 1394,
+      "sha256": "1020864a48e967cd3c3946c759dceda887a3941538b5bfd9ab2c9ab6d5e28719"
+    },
+    {
+      "path": "params/env.yaml",
+      "size_bytes": 68931,
+      "sha256": "c93697209f888ee9130196a71f975e523bc7d282f605f1ff28e7c3a7d85175f3"
+    }
+  ]
+}

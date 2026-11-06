@@ -9,7 +9,7 @@ build/
 dist/
 wheels/
 
-# Model checkpoints and exported policies (do not commit)
+# Local model checkpoints and exported policies
 *.pt
 *.pth
 *.ckpt
@@ -77,3 +77,7 @@ deploy/pre_train/
 # W1W deployment source is tracked; local environments and compiled executables are not.
 w1w_deploy/venv/
 w1w_deploy/elrs_service/elrs_service
+
+# Published ZSL1W training checkpoints
+!/checkpoints/zsl1w_piper_fixed/model_10000.pt
+!/checkpoints/zsl1w_piper_fixed/model_20000.pt
